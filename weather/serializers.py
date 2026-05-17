@@ -14,3 +14,8 @@ class WeatherSerializer(serializers.ModelSerializer):
             'temperature': data.get('temperature'),
             'weather_description': data.get('description'),
         }
+
+class WeatherRequestsHistorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserRequest
+        fields = '__all__'
