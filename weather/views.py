@@ -1,6 +1,7 @@
 from django.core.cache import cache
 from rest_framework import status
 from rest_framework.generics import ListAPIView
+from rest_framework.throttling import AnonRateThrottle
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
@@ -11,6 +12,8 @@ from .serializers import WeatherSerializer, WeatherRequestsHistorySerializer
 
 # view for weather
 class WeatherView(APIView):
+    throttle_classes = [AnonRateThrottle]
+
     def get(self,request):
         city = request.GET.get('city')
         temp_measure_unit = request.GET.get('unit')
