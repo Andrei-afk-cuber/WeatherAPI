@@ -3,9 +3,11 @@ from rest_framework import serializers
 from .models import UserRequest
 
 class WeatherSerializer(serializers.ModelSerializer):
+    from_cache = serializers.BooleanField(read_only=True, default=False)
+
     class Meta:
         model = UserRequest
-        fields = ['city', 'weather', 'weather_description', 'temperature']
+        fields = ['city', 'weather', 'weather_description', 'temperature', 'from_cache']
 
     def to_internal_value(self, data):
         return {

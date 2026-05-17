@@ -1,3 +1,4 @@
+from django.core.cache import cache
 from rest_framework import status
 from rest_framework.generics import ListAPIView
 from rest_framework.views import APIView
@@ -13,22 +14,32 @@ class WeatherView(APIView):
     def get(self,request):
         city = request.GET.get('city')
 
-        if city:
-            try:
-                weather_data = get_weather(city)
-                weather_data['city'] = city
-                serializer = WeatherSerializer(data=weather_data)
+        if not city:
+            return Response({'error':'add correct city at query params'}, status=status.HTTP_400_BAD_REQUEST)
 
-                if serializer.is_valid():
-                    serializer.save()
-                    return Response(serializer.data, status=status.HTTP_200_OK)
+        # cache
+        cache_key = f'weather_{city}'
+        cached_data = cache.get(cache_key)
 
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if cached_data:
+            cached_data['from_cache'] = True
 
-            except Exception as e:
-                return Response({'error': 'add correct city at query params'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(cached_data, status=status.HTTP_200_OK)
 
-        return Response({'error':'add correct city at query params'}, status=status.HTTP_400_BAD_REQUEST)
+        # get new data
+        weather_data = get_weather(city)
+        weather_data['city'] = city
+        serializer = WeatherSerializer(data=weather_data)
+
+
+        if serializer.is_valid():
+            # create cache
+            cache.set(cache_key, serializer.validated_data, 60*5)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 # get requests history view
 class RequestsHistoryView(ListAPIView):
