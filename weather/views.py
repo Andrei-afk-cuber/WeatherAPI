@@ -13,12 +13,13 @@ from .serializers import WeatherSerializer, WeatherRequestsHistorySerializer
 class WeatherView(APIView):
     def get(self,request):
         city = request.GET.get('city')
+        temp_measure_unit = request.GET.get('unit')
 
         if not city:
             return Response({'error':'add correct city at query params'}, status=status.HTTP_400_BAD_REQUEST)
 
         # cache
-        cache_key = f'weather_{city}'
+        cache_key = f'weather_{city}_{temp_measure_unit}'
         cached_data = cache.get(cache_key)
 
         if cached_data:
@@ -27,10 +28,9 @@ class WeatherView(APIView):
             return Response(cached_data, status=status.HTTP_200_OK)
 
         # get new data
-        weather_data = get_weather(city)
+        weather_data = get_weather(city, temp_measure_unit)
         weather_data['city'] = city
         serializer = WeatherSerializer(data=weather_data)
-
 
         if serializer.is_valid():
             # create cache
@@ -64,6 +64,3 @@ class RequestsHistoryView(ListAPIView):
             queryset = queryset.filter(created_at__lte=to_date)
 
         return queryset
-
-    def list(self,request, *args, **kwargs):
-        return super().list(request, *args, **kwargs)

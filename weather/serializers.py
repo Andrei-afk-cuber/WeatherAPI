@@ -7,7 +7,7 @@ class WeatherSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserRequest
-        fields = ['city', 'weather', 'weather_description', 'temperature', 'from_cache']
+        fields = ['city', 'weather', 'weather_description', 'temperature', 'temp_measure_unit','from_cache']
 
     def to_internal_value(self, data):
         return {
@@ -15,6 +15,7 @@ class WeatherSerializer(serializers.ModelSerializer):
             'weather': data.get('main'),
             'temperature': data.get('temperature'),
             'weather_description': data.get('description'),
+            'temp_measure_unit': data.get('temp_measure_unit'),
         }
 
 class WeatherRequestsHistorySerializer(serializers.ModelSerializer):
