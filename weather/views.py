@@ -1,4 +1,6 @@
+import csv
 from django.core.cache import cache
+from django.http import HttpResponse
 from rest_framework import status
 from rest_framework.generics import ListAPIView
 from rest_framework.throttling import AnonRateThrottle
@@ -51,7 +53,8 @@ class RequestsHistoryView(ListAPIView):
 
     # override for filters
     def get_queryset(self):
-        queryset = self.queryset
+        queryset = super().get_queryset()
+
         # filters
         city = self.request.GET.get('city')
         from_date = self.request.GET.get('from')
@@ -67,3 +70,43 @@ class RequestsHistoryView(ListAPIView):
             queryset = queryset.filter(created_at__lte=to_date)
 
         return queryset
+
+    def get(self, request, *args, **kwargs):
+        format_type = request.GET.get('export')
+
+        if format_type == 'csv':
+            return self._csv_export()
+
+        return super().list(request, *args, **kwargs)
+
+    # method for create csv export
+    def _csv_export(self):
+        queryset = self.get_queryset()
+
+        response = HttpResponse(content_type='text/csv; charset=utf-8')
+        response['Content-Disposition'] = f'attachment; filename="weather-history.csv"'
+
+        writer = csv.writer(response)
+
+        writer.writerow([
+            'Id',
+            'city',
+            'weather',
+            'weather description',
+            'temperature',
+            'temp_measure_unit',
+            'created at',
+        ])
+
+        for obj in queryset:
+            writer.writerow([
+                obj.id,
+                obj.city,
+                obj.weather,
+                obj.weather_description,
+                obj.temperature,
+                obj.temp_measure_unit,
+                obj.created_at,
+            ])
+
+        return response
