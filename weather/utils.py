@@ -1,31 +1,48 @@
 import requests
+import time
+import logging
 
 KEY='354b92296ab4c0c2ed2fdd7c25343279'
+
+logger = logging.getLogger(__name__)
 
 # function for get weather
 def get_weather(city, temp_measure='C'):
     result = {}
+    start = time.time()
     url = "http://api.openweathermap.org/data/2.5/weather"
     params = {
         'appid': KEY,
         'q': city,
     }
 
-    response = requests.get(url, params=params)
+    try:
+        response = requests.get(url, params=params, timeout=10)
+        duration = (time.time() - start) * 1000
 
-    if response.status_code == 200:
-        weather_data = response.json()
-        result['temp_measure_unit'] = temp_measure
+        logger.info(f'External API call duration: {duration:.2f}ms. Status: {response.status_code}')
 
-        if result['temp_measure_unit'] == 'C':
-            result['temperature'] = round(weather_data['main']['temp'] - 273.15)
-        else:
-            result['temperature'] = round(weather_data['main']['temp'])
+        # data processing
+        if response.status_code == 200:
+            weather_data = response.json()
+            result['temp_measure_unit'] = temp_measure
 
-        result = result | weather_data['weather'][0]
-        return result
+            if result['temp_measure_unit'] == 'C':
+                result['temperature'] = round(weather_data['main']['temp'] - 273.15)
+            else:
+                result['temperature'] = round(weather_data['main']['temp'])
 
-    return {'error': response.status_code}
+            result = result | weather_data['weather'][0]
+            return result
 
-if __name__ == '__main__':
-    print(get_weather('Minsk'))
+        logger.error(f"External API for city error: {response.status_code}")
+        return {'error': response.status_code}
+    except requests.exceptions.Timeout:
+        logger.error(f'External API timeout')
+        return {'error': 'timeout'}
+    except requests.exceptions.ConnectionError:
+        logger.error(f'External API connection error')
+        return {'error': 'connection error'}
+    except Exception as e:
+        logger.error(f'Unexpected error: {str(e)}', exc_info=True)
+        return {'error': str(e)}

@@ -6,11 +6,14 @@ from rest_framework.generics import ListAPIView
 from rest_framework.throttling import AnonRateThrottle
 from rest_framework.views import APIView
 from rest_framework.response import Response
+import logging
 
 from .models import UserRequest
 from .utils import get_weather
 from .serializers import WeatherSerializer, WeatherRequestsHistorySerializer
 
+# create logger
+logger = logging.getLogger(__name__)
 
 # view for weather
 class WeatherView(APIView):
@@ -20,7 +23,10 @@ class WeatherView(APIView):
         city = request.GET.get('city')
         temp_measure_unit = request.GET.get('unit')
 
+        logger.info(f'Request started, city = {city}')
+
         if not city:
+            logger.warning(f'Request failed: missing city parameter')
             return Response({'error':'add correct city at query params'}, status=status.HTTP_400_BAD_REQUEST)
 
         # cache
@@ -28,6 +34,7 @@ class WeatherView(APIView):
         cached_data = cache.get(cache_key)
 
         if cached_data:
+            logger.info(f'City is taken from cache ({cache_key})')
             cached_data['from_cache'] = True
 
             return Response(cached_data, status=status.HTTP_200_OK)
@@ -41,8 +48,11 @@ class WeatherView(APIView):
             # create cache
             cache.set(cache_key, serializer.validated_data, 60*5)
             serializer.save()
+
+            logger.info(f'Request successful for city {city}')
             return Response(serializer.data, status=status.HTTP_200_OK)
 
+        logger.error(f'Request failed for city {city}. Error: {serializer.errors}')
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -53,7 +63,7 @@ class RequestsHistoryView(ListAPIView):
 
     # override for filters
     def get_queryset(self):
-        queryset = super().get_queryset()
+        queryset = super().get_queryset().order_by('id')
 
         # filters
         city = self.request.GET.get('city')
@@ -72,9 +82,11 @@ class RequestsHistoryView(ListAPIView):
         return queryset
 
     def get(self, request, *args, **kwargs):
+        logger.info(f'History request, params: {request.GET}')
         format_type = request.GET.get('export')
 
         if format_type == 'csv':
+            logger.info(f'Exporting to CSV.')
             return self._csv_export()
 
         return super().list(request, *args, **kwargs)
@@ -109,4 +121,5 @@ class RequestsHistoryView(ListAPIView):
                 obj.created_at,
             ])
 
+        logger.info(f'CSV export complete')
         return response
