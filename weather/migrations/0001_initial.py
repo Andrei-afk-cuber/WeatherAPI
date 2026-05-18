@@ -4,26 +4,32 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='UserRequest',
+            name="UserRequest",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('city', models.CharField(max_length=100)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('weather', models.CharField(max_length=100)),
-                ('weather_description', models.CharField(max_length=100)),
-                ('temperature', models.IntegerField()),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("city", models.CharField(max_length=100)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("weather", models.CharField(max_length=100)),
+                ("weather_description", models.CharField(max_length=100)),
+                ("temperature", models.IntegerField()),
             ],
             options={
-                'verbose_name': 'Request',
-                'verbose_name_plural': 'Requests',
+                "verbose_name": "Request",
+                "verbose_name_plural": "Requests",
             },
         ),
     ]

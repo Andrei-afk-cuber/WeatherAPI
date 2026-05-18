@@ -4,15 +4,18 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('weather', '0001_initial'),
+        ("weather", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='userrequest',
-            name='temp_measure_unit',
-            field=models.CharField(choices=[('F', 'Fahrenheit'), ('C', 'Celsius')], default='C', max_length=1),
+            model_name="userrequest",
+            name="temp_measure_unit",
+            field=models.CharField(
+                choices=[("F", "Fahrenheit"), ("C", "Celsius")],
+                default="C",
+                max_length=1,
+            ),
         ),
     ]
