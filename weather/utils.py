@@ -2,7 +2,8 @@ import requests
 import time
 import logging
 
-KEY='354b92296ab4c0c2ed2fdd7c25343279'
+from config import APIConfig
+
 
 logger = logging.getLogger(__name__)
 
@@ -12,7 +13,7 @@ def get_weather(city, temp_measure='C'):
     start = time.time()
     url = "http://api.openweathermap.org/data/2.5/weather"
     params = {
-        'appid': KEY,
+        'appid': APIConfig.API_KEY,
         'q': city,
     }
 
@@ -33,6 +34,7 @@ def get_weather(city, temp_measure='C'):
                 result['temperature'] = round(weather_data['main']['temp'])
 
             result = result | weather_data['weather'][0]
+
             return result
 
         logger.error(f"External API for city error: {response.status_code}")

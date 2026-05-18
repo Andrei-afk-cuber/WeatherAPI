@@ -21,7 +21,7 @@ class WeatherView(APIView):
 
     def get(self,request):
         city = request.GET.get('city')
-        temp_measure_unit = request.GET.get('unit')
+        temp_measure_unit = request.GET.get('unit', 'C')
 
         logger.info(f'Request started, city = {city}')
 

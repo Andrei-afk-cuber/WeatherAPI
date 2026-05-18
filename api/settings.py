@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 from pathlib import Path
 import os
 
-from config import Config
+from config import DatabaseConfig, APPConfig
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -94,9 +94,9 @@ WSGI_APPLICATION = 'api.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': Config.DB_NAME,
-        'USER': Config.DB_USER,
-        'PASSWORD': Config.DB_PASSWORD,
+        'NAME': DatabaseConfig.DB_NAME,
+        'USER': DatabaseConfig.DB_USER,
+        'PASSWORD': DatabaseConfig.DB_PASSWORD,
         'HOST': '127.0.0.1',
         'PORT': '5432',
     }
@@ -141,12 +141,12 @@ STATIC_URL = 'static/'
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 10,
+    'PAGE_SIZE': APPConfig.PAGE_SIZE,
     'DEFAULT_THROTTLE_CLASSES': (
         'rest_framework.throttling.AnonRateThrottle',
     ),
     'DEFAULT_THROTTLE_RATES': {
-        'anon': '5/minute'
+        'anon': APPConfig.THROTTLE_RATE,
     }
 }
 
