@@ -17,7 +17,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+from .views import check_db_health
+
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('weather/', include('weather.urls')),
+    path('health/', check_db_health),
 ]
