@@ -52,5 +52,3 @@ def get_weather(city, temp_measure="C"):
     except Exception as e:
         logger.error(f"Unexpected error: {str(e)}", exc_info=True)
         return {"error": str(e)}
-
-# TODO пофиксить проблему с некорректными значениями unit=;l,ads
