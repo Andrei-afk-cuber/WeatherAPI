@@ -29,7 +29,7 @@ def get_weather(city, temp_measure="C"):
         # data processing
         if response.status_code == 200:
             weather_data = response.json()
-            result["temp_measure_unit"] = temp_measure
+            result["temp_measure_unit"] = temp_measure.upper()
 
             if result["temp_measure_unit"] == "C":
                 result["temperature"] = round(weather_data["main"]["temp"] - 273.15)
@@ -52,3 +52,5 @@ def get_weather(city, temp_measure="C"):
     except Exception as e:
         logger.error(f"Unexpected error: {str(e)}", exc_info=True)
         return {"error": str(e)}
+
+# TODO пофиксить проблему с некорректными значениями unit=;l,ads

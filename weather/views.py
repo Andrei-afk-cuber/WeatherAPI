@@ -1,4 +1,6 @@
 import csv
+import datetime
+
 from django.core.cache import cache
 from django.http import HttpResponse
 from rest_framework import status
@@ -44,7 +46,12 @@ class WeatherView(APIView):
             return Response(cached_data, status=status.HTTP_200_OK)
 
         # get new data
-        weather_data = get_weather(city, temp_measure_unit)
+        try:
+            weather_data = get_weather(city, temp_measure_unit)
+        except ValueError as e:
+            logger.warning("Request failed: invalid unit parameter")
+            return Response("Enter correct unit value ('C' or 'F')", status=status.HTTP_400_BAD_REQUEST)
+
         weather_data["city"] = city
         serializer = WeatherSerializer(data=weather_data)
 
@@ -79,10 +86,18 @@ class RequestsHistoryView(ListAPIView):
             queryset = queryset.filter(city__icontains=city)
 
         if from_date:
-            queryset = queryset.filter(created_at__gte=from_date)
+            try:
+                from_date = datetime.datetime.strptime(from_date, "%Y-%m-%d").date()
+                queryset = queryset.filter(created_at__gte=from_date)
+            except Exception as e:
+                logger.warning(f'User write incorrect date. Error:{e}')
 
         if to_date:
-            queryset = queryset.filter(created_at__lte=to_date)
+            try:
+                to_date = datetime.datetime.strptime(to_date, "%Y-%m-%d").date()
+                queryset = queryset.filter(created_at__lte=to_date)
+            except Exception as e:
+                logger.warning(f'User write incorrect date. Error:{e}')
 
         return queryset
 
