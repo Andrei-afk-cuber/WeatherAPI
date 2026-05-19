@@ -96,8 +96,8 @@ DATABASES = {
         "NAME": DatabaseConfig.DB_NAME,
         "USER": DatabaseConfig.DB_USER,
         "PASSWORD": DatabaseConfig.DB_PASSWORD,
-        "HOST": "localhost",
-        "PORT": "5432",
+        "HOST": DatabaseConfig.DB_HOST,
+        "PORT": DatabaseConfig.DB_PORT,
     }
 }
 

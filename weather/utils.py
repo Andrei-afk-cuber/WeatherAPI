@@ -35,7 +35,7 @@ def get_weather(city, temp_measure="C"):
                 result["temperature"] = round(weather_data["main"]["temp"] - 273.15)
             else:
                 result["temp_measure_unit"] = "F"
-                result["temperature"] = round(weather_data["main"]["temp"])
+                result["temperature"] = round((weather_data["main"]["temp"] - 273.15) * 9/5 + 32)
 
             result = result | weather_data["weather"][0]
 
