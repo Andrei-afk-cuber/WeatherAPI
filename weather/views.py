@@ -21,7 +21,7 @@ class WeatherView(APIView):
     throttle_classes = [AnonRateThrottle]
 
     def get(self, request):
-        city= request.GET.get("city")
+        city = request.GET.get("city")
         temp_measure_unit = request.GET.get("unit", "C")
 
         logger.info(f"Request started, city = {city}")
@@ -34,7 +34,7 @@ class WeatherView(APIView):
             )
 
         # cache
-        cache_key = f"weather_{city.replace(' ','').lower()}_{temp_measure_unit}"
+        cache_key = f"weather_{city.replace(' ', '').lower()}_{temp_measure_unit}"
         cached_data = cache.get(cache_key)
 
         if cached_data:
